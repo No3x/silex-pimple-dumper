@@ -3,21 +3,19 @@
 namespace Sorien\Provider;
 
 use Pimple\Container;
-use Pimple\ServiceProviderInterface;
-use Silex\Api\BootableProviderInterface;
-use Silex\Api\ControllerProviderInterface;
+use Silex\ServiceProviderInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
 
-class PimpleDumpProvider implements ServiceProviderInterface, ControllerProviderInterface, BootableProviderInterface
+class PimpleDumpProvider implements ServiceProviderInterface
 {
     const DIC_PREFIX = 'pimpledump';
 
     private $outOfRequestScopeTypes = array();
     private $processed = false;
 
-    public function dump(Container $container)
+    public function dump(\Pimple $container)
     {
         $map = $this->parseContainer($container);
 
@@ -33,7 +31,7 @@ class PimpleDumpProvider implements ServiceProviderInterface, ControllerProvider
      * @param Container $container
      * @return array
      */
-    protected function parseContainer(Container $container)
+    protected function parseContainer(\Pimple $container)
     {
         $map = array();
 
@@ -58,7 +56,7 @@ class PimpleDumpProvider implements ServiceProviderInterface, ControllerProvider
      *
      * @return array|null
      */
-    protected function parseItem(Container $container, $name)
+    protected function parseItem(\Pimple $container, $name)
     {
         try {
             $element = $container[$name];
@@ -77,7 +75,7 @@ class PimpleDumpProvider implements ServiceProviderInterface, ControllerProvider
             if ($element instanceof \Closure) {
                 $type = 'closure';
                 $value = '';
-            } elseif ($element instanceof Container) {
+            } elseif ($element instanceof \Pimple) {
                 $type = 'container';
                 $value = $this->parseContainer($element);
             } else {
@@ -152,7 +150,7 @@ class PimpleDumpProvider implements ServiceProviderInterface, ControllerProvider
         return $controllersFactory;
     }
 
-    public function register(Container $app)
+    public function register(Application $app)
     {
         // Set defaults
         $param = self::DIC_PREFIX . '.output_dir';
